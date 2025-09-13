@@ -1,3 +1,4 @@
+import os
 import re
 import time
 import requests
@@ -78,6 +79,13 @@ class Filter:
         self.global_instruction = GLOBAL_INSTRUCTION
         self.thinking_start_time = None
 
+        # NEW: path for plain‑text persistence
+        self.knowledge_file_path = os.path.join(
+            os.path.dirname(__file__), "knowledge.txt"
+        )
+        if not os.path.exists(self.knowledge_file_path):
+            open(self.knowledge_file_path, "a", encoding="utf-8").close()
+
     def _learn_from_message(self, message: str) -> None:
         """Learn from each user message in real-time based on learning mode."""
         if not self.valves.enable_autolearn:
@@ -95,9 +103,17 @@ class Filter:
         return processed_info
 
     def _store_knowledge(self, learned_info: str) -> None:
-        """Store learned information in the knowledge base for future use."""
-        print(f"Storing knowledge: {learned_info}")
+        """Persist learned information to a file and keep it in memory."""
+        # In‑memory store
         self.knowledge_base.append(learned_info)
+
+        # Append to the plain-text file
+        try:
+            with open(self.knowledge_file_path, "a", encoding="utf-8") as f:
+                f.write(learned_info + "\n")
+            print(f"Persisted knowledge to {self.knowledge_file_path}")
+        except Exception as e:
+            print(f"Failed to persist knowledge: {e}")
 
     def _dynamic_learning(self, messages: List[str]) -> None:
         """Dynamic learning: Iteratively process user messages over time."""

@@ -1,0 +1,439 @@
+"""
+title: Knowledge adder Action
+author: elumya
+author_url: https://github.com/ELumya
+version: 0.1.1
+required_open_webui_version: 0.5.0
+icon_url: data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/Pgo8IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDIwMDEwOTA0Ly9FTiIKICJodHRwOi8vd3d3LnczLm9yZy9UUi8yMDAxL1JFQy1TVkctMjAwMTA5MDQvRFREL3N2ZzEwLmR0ZCI+CjxzdmcgdmVyc2lvbj0iMS4wIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiB3aWR0aD0iMzAwLjAwMDAwMHB0IiBoZWlnaHQ9IjMwMC4wMDAwMDBwdCIgdmlld0JveD0iMCAwIDMwMC4wMDAwMDAgMzAwLjAwMDAwMCIKIHByZXNlcnZlQXNwZWN0UmF0aW89InhNaWRZTWlkIG1lZXQiPgoKPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMC4wMDAwMDAsMzAwLjAwMDAwMCkgc2NhbGUoMC4xMDAwMDAsLTAuMTAwMDAwKSIKZmlsbD0iIzAwMDAwMCIgc3Ryb2tlPSJub25lIj4KPHBhdGggZD0iTTE0MTcgMjkzOSBjLTM1IC0yMCAtNDcgLTY0IC00NyAtMTY5IGwwIC0xMDAgLTI1OCAwIGMtMjg1IDAgLTMyNwotNiAtNDE0IC02MiAtNjMgLTM5IC0xMDkgLTkyIC0xNDQgLTE2NCBsLTI5IC01OSAwIC0zOTAgMCAtMzkwIDI4IC01NiBjNjgKLTEzOSAyMDMgLTIyOSAzNDQgLTIyOSBsNDMgMCAwIC01OCAwIC01NyAtMjYxIC0xMzAgYy0yNjggLTEzMyAtMzA5IC0xNjIKLTMwOSAtMjE0IDAgLTU2IDU3IC0xMTEgMTE0IC0xMTEgMTQgMCAxMTkgNDcgMjM0IDEwNSAxMTQgNTggMjExIDEwNSAyMTUgMTA1CjQgMCA3IC0xODggNyAtNDE3IDAgLTQwMCAxIC00MTkgMjAgLTQ1MSAzNiAtNTkgMTEwIC03MCAxNjIgLTIzIGwzMyAyOSAzIDE4MQozIDE4MSAxNzAgMCAxNjkgMCAwIDExMCAwIDExMCAtMTcwIDAgLTE3MCAwIDAgMzIwIDAgMzIwIDMxOCAtMiAzMTcgLTMgMwotMTAyIGMxIC01NyA0IC0xMDMgNiAtMTAzIDIgMCAyOCAxMSA1NyAyNCAzMCAxNCA3NSAzMCAxMDIgMzcgbDQ3IDExIDAgNjggMAo2NyA2OCA1IGMxMzkgMTAgMjgxIDExNCAzMzQgMjQ1IDIzIDU3IDIzIDYzIDIzIDQyOCAwIDM2NSAwIDM3MSAtMjMgNDI4IC0zMwo4MSAtMTE2IDE2OCAtMjAxIDIxMCBsLTY2IDMyIC0yNzcgMyAtMjc4IDMgMCA3NyBjLTEgMTQ4IC0zMSAyMDIgLTExMyAyMDIKLTIzIDAgLTUwIC01IC02MCAtMTF6IG02NzUgLTQ4OSBjNDUgLTEzIDkzIC01MSAxMTYgLTk0IDE1IC0yNyAxNyAtNjggMTcKLTM2MSAwIC0yOTMgLTIgLTMzNCAtMTcgLTM2MSAtMjQgLTQ0IC03MiAtODEgLTExOCAtOTQgLTI2IC03IC0yNDAgLTEwIC02MzgKLTggbC01OTggMyAtNDEgMjcgYy0yNCAxNiAtNDkgNDQgLTYyIDcwIC0yMCA0MiAtMjEgNTkgLTIxIDM2MyAwIDI5OCAxIDMyMQoyMCAzNjAgMjEgNDQgNjUgODIgMTA5IDk1IDQwIDEzIDExODkgMTIgMTIzMyAweiIvPgo8cGF0aCBkPSJNMTExOSAyMDcxIGMtMjQgLTI0IC0yOSAtMzggLTI5IC03NiAwIC0zOCA1IC01MiAyOSAtNzYgMjQgLTIzIDM4Ci0yOSA3MyAtMjkgNDYgMSA2NCAxMCA5MSA1MCAyOCA0MSAyMiA4NyAtMTcgMTI2IC00NiA0NiAtMTA0IDQ4IC0xNDcgNXoiLz4KPHBhdGggZD0iTTE2ODkgMjA3MSBjLTI0IC0yNCAtMjkgLTM4IC0yOSAtNzYgMCAtNjUgMzkgLTEwNSAxMDIgLTEwNSAzNiAwIDUwCjYgNzQgMzEgMjMgMjQgMjkgMzkgMjkgNzUgMCAzOSAtNSA1MCAtMzMgNzUgLTQ1IDQxIC0xMDIgNDEgLTE0MyAweiIvPgo8cGF0aCBkPSJNMTg1OCAxMDYxIGMtMTEwIC0zNiAtMTY4IC0xMjggLTE2OCAtMjY5IDAgLTYwIC0yIC02NyAtMzkgLTEwOCAtODAKLTkxIC04MCAtMjA3IDEgLTI5OSAzMCAtMzQgMzggLTUxIDM4IC04MiAwIC05NCA0NSAtMTc4IDExOSAtMjIxIDgxIC00OCAxOTcKLTM0IDI2OSAzMSBsMjIgMjAgMjMgLTIwIGM3MSAtNjUgMTg3IC03OSAyNjggLTMxIDc0IDQzIDExOSAxMjcgMTE5IDIyMSAwIDMxCjggNDggMzggODIgODEgOTIgODEgMjA4IDEgMjk5IC0zNyA0MSAtMzkgNDggLTM5IDEwOCAwIDExOSAtMzggMTk5IC0xMTkgMjQ2Ci04MSA0OCAtMTk3IDM0IC0yNjggLTMxIGwtMjMgLTIwIC0yMiAyMCBjLTU0IDQ5IC0xNTcgNzQgLTIyMCA1NHogbTExOCAtMTExCmM2NiAtMzMgNzQgLTU5IDc0IC0yNTQgMCAtOTEgLTIgLTE2NiAtNCAtMTY2IC0yIDAgLTIzIDcgLTQ2IDE1IC01NSAxOSAtODkKMTkgLTExMiAtMiAtMzQgLTMwIC0xMiAtODMgMzUgLTgzIDM3IDAgODkgLTM0IDEwOSAtNzEgMjIgLTQyIDIzIC0xMTkgMiAtMTY1Ci0xMCAtMjIgLTMxIC00MCAtNTkgLTU0IC0zNyAtMTggLTQ5IC0yMCAtODQgLTEwIC01NCAxNCAtOTEgNjAgLTkxIDExMSAwIDM0CjMgMzkgMjMgMzkgMTMgMCAyOCA1IDM1IDEyIDMwIDMwIC0xIDg4IC00NyA4OCAtMzMgMCAtODYgMzIgLTEwMiA2MiAtNyAxMwotMTIgNDEgLTEyIDYzIDAgNzIgNTQgMTI1IDEyOCAxMjUgMzYgMCA3NSAyOCA3NSA1NCAwIDI1IC0zMCA0NiAtNjYgNDYgbC0zNAowIDAgNjQgYzAgNTUgNCA2OSAyNiA5NSAyMiAyNiA2MiA0NyA5OCA1MCA1IDEgMjkgLTggNTIgLTE5eiBtMzM2IDEwIGMyMCAtNgo0OCAtMjQgNjIgLTQxIDIyIC0yNiAyNiAtNDAgMjYgLTk1IGwwIC02NCAtMzQgMCBjLTM2IDAgLTY2IC0yMSAtNjYgLTQ2IDAKLTI2IDM5IC01NCA3NSAtNTQgNzQgMCAxMjggLTUzIDEyOCAtMTI1IDAgLTIyIC01IC01MCAtMTIgLTYzIC0xNiAtMjkgLTY5Ci02MiAtMTAwIC02MiAtMzEgMCAtNjEgLTI3IC02MSAtNTUgMCAtMjcgMTggLTQ1IDQ3IC00NSAyMCAwIDIzIC01IDIzIC0zOSAwCi01MSAtMzcgLTk3IC05MSAtMTExIC0zNSAtMTAgLTQ3IC04IC04NCAxMCAtMjggMTQgLTQ5IDMyIC01OSA1NCAtMjEgNDYgLTIwCjEyMyAyIDE2NSAyMCAzNyA3MiA3MSAxMDkgNzEgMjUgMCA1MyAyNSA1MyA0NyAwIDI2IC0zMSA1MyAtNjAgNTMgLTE1IDAgLTQ3Ci03IC03MCAtMTUgLTIzIC04IC00NCAtMTUgLTQ2IC0xNSAtMiAwIC00IDc1IC00IDE2NiAwIDE5NSA4IDIyMSA3MyAyNTMgNDkKMjQgNDIgMjQgODkgMTF6Ii8+CjwvZz4KPC9zdmc+Cg==
+Descrition: Edit your assistant answer and add it to the choosen knowledge.
+    You can split your messages on <file value: "name_of_the_file">...</file> and inside a file on <section value: "name_of_your_section">...</section>
+    Both are optional but if you start using one keep it until the end of the assistant message. If used once everything outside those tags will be ignored.
+    The file will be named in the knowledge : name_of_the_file-name_of_your_section.txt
+"""
+
+import re
+import io
+
+from pydantic import BaseModel, Field
+from typing import List, Optional, Callable, Awaitable, Any
+
+from fastapi import UploadFile
+from fastapi.requests import Request
+
+from open_webui.routers.users import Users
+from open_webui.routers.chats import Chats
+from open_webui.routers.knowledge import (
+    add_file_to_knowledge_by_id,
+    get_knowledge_list,
+    KnowledgeFileIdForm,
+)
+from open_webui.routers.files import upload_file
+from open_webui.utils.misc import (
+    get_last_assistant_message_item,
+    get_last_assistant_message,
+)
+from open_webui.models.files import FileModel
+from open_webui.utils.logger import logger
+
+
+class Action:
+    class Valves(BaseModel):
+        pass
+
+    class UserValves(BaseModel):
+        allow_edit: bool = Field(
+            default=True, description="Allow content editing before adding."
+        )
+        need_confirmation: bool = Field(
+            default=True,
+            description="Confirme before submitting new data to knowledge.",
+        )
+        default_knowledge: Optional[str] = Field(
+            default=None, description="Select the default knowledge filled"
+        )
+        split_tag: str = Field(
+            default="section",
+            description="Tag for splitting the message before adding to knowledge. It will split on <Tag>...</Tag>",
+        )
+
+    def __init__(self):
+        self.valves = self.Valves()
+
+    async def edit_message_in_front(
+        self,
+        message_id,
+        knowledge_dropdown_html,
+        __event_emitter__: Optional[Callable[[Any], Awaitable[None]]] = None,
+        __event_call__: Optional[Callable[[Any], Awaitable[None]]] = None,
+    ) -> dict:
+        await __event_emitter__(
+            {
+                "type": "status",
+                "data": {"description": "Awaiting user editing", "done": False},
+            }
+        )
+        return await __event_call__(
+            {
+                "type": "execute",  # We use the DOM to triger the edite of the message
+                "data": {
+                    "code": f"""
+                    try {{
+                        // Components selected using the message id
+                        const actionBar = document.querySelector('#message-{message_id} > div:nth-child(2) > div:nth-child(2) > div:nth-child(2)');
+                        if (!actionBar) {{
+                            return 'actionBar not found.';
+                        }}
+                                                
+                        const editButton = actionBar.querySelector('button.visible')
+                        if (!editButton) {{
+                            return 'Edit button not found.';
+                        }}
+                        editButton.click();
+                        
+                        let dropdownElem; // Global variable to store the dropdown element
+
+                        function addDropdown() {{
+                            // Once in the edit mode we add the dropdown menu for knowledge selection
+                            const validationBar = document.querySelector('#message-{message_id} > div:nth-child(2) > div:nth-child(2) > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > div:nth-child(2)');
+                            if (!validationBar) return null;
+
+                            const wrapper = document.createElement('div');
+                            wrapper.classList.add(
+                                'w-full', 'group', 'relative',
+                                'flex', 'items-center', 'justify-between',
+                                'bg-gray-100', 'hover:bg-gray-200',
+                                'transition', 'dark:bg-gray-850',
+                                'dark:hover:bg-gray-900', 'rounded'
+                            );
+
+                            const dropdown = document.createElement('select');
+                            dropdown.innerHTML = `{knowledge_dropdown_html}`;
+                            dropdown.classList.add(
+                                'font-medium', 'text-gray-800', 'text-base',
+                                'px-4', 'py-2', 'dark:text-gray-200',
+                                'w-full', 'dark:hover:bg-gray-900', 'rounded'
+                            );
+                            
+                            dropdownElem = dropdown; // Save reference for later retrieval
+                            wrapper.appendChild(dropdown);
+
+                            // Insert wrapper above the validationBar
+                            validationBar.parentNode.insertBefore(wrapper, validationBar);
+
+                            return validationBar;
+                        }}
+
+                        function observeEdit() {{
+                            return new Promise((resolve) => {{
+                                const observer = new MutationObserver((mutations, obs) => {{
+                                    for (const mutation of mutations) {{
+                                        const validationBar = addDropdown();
+                                        obs.disconnect(); // Stop observing after executing
+                                        resolve(validationBar);
+                                        return;
+                                    }}
+                                }});
+                        
+                            observer.observe(document.body, {{ childList: true, attributes: true, subtree: true }});
+                            }});
+                        }}
+
+                        // Wait for edit mode to load
+                        const validationBar = await observeEdit();
+                        if (!validationBar) {{
+                            return 'validationBar not found.';
+                        }}
+
+                        // Select edit buttons
+                        const saveCopyButton = validationBar.querySelector('#save-new-message-button');
+                        const saveButton = validationBar.querySelector('#confirm-edit-message-button');
+                        const cancelButton = validationBar.querySelector('#close-edit-message-button');
+                        
+                        function waitForButtonClick() {{
+                            return new Promise((resolve) => {{
+                                function handleButtonClick(event) {{
+                                    resolve({{
+                                        buttonId: event.target.id,
+                                        knowledge: dropdownElem ? dropdownElem.value : null
+                                    }});
+                                }}
+
+                                if (saveCopyButton) saveCopyButton.addEventListener('click', handleButtonClick, {{ once: true }});
+                                if (saveButton) saveButton.addEventListener('click', handleButtonClick, {{ once: true }});
+                                if (cancelButton) cancelButton.addEventListener('click', handleButtonClick, {{ once: true }});
+                            }});
+                        }}
+
+                        // Wait for a button click and return the result
+                        return await waitForButtonClick();
+                    }} catch (error) {{
+                        return ('Error executing message edit:' + error);
+                    }}
+                """
+                },
+            }
+        )
+
+    async def confirm_action(
+        self,
+        need_confirmation,
+        allow_edit,
+        knowledge_name,
+        __event_call__: Optional[Callable[[Any], Awaitable[None]]] = None,
+        __event_emitter__: Optional[Callable[[Any], Awaitable[None]]] = None,
+    ) -> bool:
+        if allow_edit:
+            await __event_emitter__(
+                {
+                    "type": "notification",
+                    "data": {"type": "success", "content": "Edition confirmed"},
+                }
+            )
+        if need_confirmation:
+            return await __event_call__(
+                {
+                    "type": "confirmation",
+                    "data": {"title": f"Add data to {knowledge_name}", "message": ""},
+                }
+            )
+        else:
+            return True
+
+    async def split_on_tag(self, content, tag: str = "section") -> List[str]:
+        pattern = re.compile(f'<{tag}\s+value:\s*"([^"]+)">(.*?)</{tag}>', re.DOTALL)
+        return pattern.findall(content)
+
+    async def process_files(
+        self, content: str, split_tag, user, __request__
+    ) -> List["FileModel"]:
+        # Pattern to extract each file (file name and content) from the input.
+        # It captures the file name (group 1) and the content inside the <file ...> and </file> (group 2).
+        file_pattern = re.compile(r'<file\s+value:\s*"([^"]+)">(.*?)</file>', re.DOTALL)
+        files_found = file_pattern.findall(content)
+        if not files_found:
+            files_found = [("", content)]
+        file_list = []
+
+        for file_name, file_content in files_found:
+
+            file_name_no_ext = file_name.rsplit(".", 1)[0]
+
+            sections = await self.split_on_tag(file_content, split_tag)
+
+            if not sections:
+                sections = [("", file_content.strip())]
+
+            # Process each section/chunk
+            for section_name, section in sections:
+                # Construct a new filename per chunk
+                new_filename = f"{file_name_no_ext}-{section_name}.txt"
+                # Create an UploadFile object using the chunk content.
+                upload_file_obj = UploadFile(
+                    file=io.BytesIO(section.encode("utf-8")), filename=new_filename
+                )
+                # Upload the file chunk and collect the result.
+                file_model = upload_file(__request__, upload_file_obj, user, {})
+                file_list.append(file_model)
+
+        return file_list
+
+    async def action(
+        self,
+        body: dict,
+        __request__: Request,
+        __user__=None,
+        __event_emitter__=None,
+        __event_call__=None,
+    ) -> Optional[dict]:
+        logger.info(f"User - Name: { __user__['name']}, ID: {__user__['id']}")
+
+        user_valves = __user__.get("valves")
+        if not user_valves:
+            user_valves = self.UserValves()
+
+        # user Dict to Instance
+        user = Users.get_user_by_id(__user__.get("id"))
+
+        await __event_emitter__(
+            {
+                "type": "status",
+                "data": {"description": "Knowledges search", "done": False},
+            }
+        )
+
+        try:
+            knowledge_list = await get_knowledge_list(user)
+            knowledge_dropdown_html = "\n".join(
+                [
+                    f'<option value="{knowledge.id}, {knowledge.name}">{knowledge.name}</option>'
+                    for knowledge in knowledge_list
+                ]
+            )
+        except Exception as e:
+            logger.error(
+                f"User - Name: {user.name}, ID: {user.id}: Error trying to get knowledge list: {e}"
+            )
+
+        last_assistant_message = get_last_assistant_message_item(body["messages"])
+        message_id = last_assistant_message["id"]
+
+        await __event_emitter__(
+            {
+                "type": "status",
+                "data": {
+                    "description": "Preparing data to be added to knowledge",
+                    "done": False,
+                },
+            }
+        )
+        if user_valves.allow_edit:
+            try:
+                edit_result = await self.edit_message_in_front(
+                    message_id,
+                    knowledge_dropdown_html,
+                    __event_emitter__,
+                    __event_call__,
+                )
+                button_id = edit_result["buttonId"]
+                knowledge_id, knowledge_name = edit_result["knowledge"].split(", ")
+                if button_id == "confirm-edit-message-button":
+                    is_confirmed = await self.confirm_action(
+                        user_valves.need_confirmation,
+                        True,
+                        knowledge_name,
+                        __event_call__,
+                        __event_emitter__,
+                    )
+                elif button_id == "save-new-message-button":
+                    await __event_emitter__(
+                        {
+                            "type": "notification",
+                            "data": {
+                                "type": "success",
+                                "content": "Editions saved for later update.",
+                            },
+                        }
+                    )
+                    return await __event_emitter__(
+                        {
+                            "type": "status",
+                            "data": {"description": "Edition confirmed", "done": True},
+                        }
+                    )
+                elif button_id == "close-edit-message-button":
+                    return await self.cancel(user, __event_emitter__)
+                else:
+                    raise Exception(edit_result)
+
+            except Exception as e:
+                logger.error(
+                    f"User - Name: {user.name}, ID: {user.id}: Error preparing data: {e}"
+                )
+                await __event_emitter__(
+                    {
+                        "type": "notification",
+                        "data": {
+                            "type": "error",
+                            "content": f"Error preparing data: {e}",
+                        },
+                    }
+                )
+        else:
+            knowledge_id = knowledge_list[-1].id
+            knowledge_name = knowledge_list[-1].name
+            is_confirmed = await self.confirm_action(
+                user_valves.need_confirmation,
+                False,
+                knowledge_name,
+                __event_call__,
+                __event_emitter__,
+            )
+
+        if is_confirmed:
+            try:
+                await __event_emitter__(
+                    {
+                        "type": "notification",
+                        "data": {
+                            "type": "status",
+                            "data": {
+                                "description": f"Adding documents to {knowledge_name}",
+                                "done": False,
+                            },
+                        },
+                    }
+                )
+                chat = Chats.get_chat_by_id(body["chat_id"]).chat
+                content = get_last_assistant_message(chat["messages"])
+                files = await self.process_files(
+                    content, user_valves.split_tag, user, __request__
+                )
+            except Exception as e:
+                logger.error(
+                    f"User - Name: {user.name}, ID: {user.id}: Error retriving modified content: {e}"
+                )
+
+            try:
+                for file in files:
+                    add_file_to_knowledge_by_id(
+                        request=__request__,
+                        id=knowledge_id,
+                        form_data=KnowledgeFileIdForm(file_id=file.id),
+                        user=user,
+                    )
+
+                await __event_emitter__(
+                    {
+                        "type": "notification",
+                        "data": {
+                            "type": "success",
+                            "content": "Documents added to knowledge",
+                        },
+                    }
+                )
+
+                await __event_emitter__(
+                    {
+                        "type": "status",
+                        "data": {
+                            "description": "Documents added to knowledge",
+                            "done": True,
+                        },
+                    }
+                )
+                logger.info(
+                    f"User - Name: {user.name}, ID: {user.id}: Documents added to knowledge."
+                )
+                return
+
+            except Exception as e:
+                logger.error(
+                    f"User - Name: {user.name}, ID: {user.id}: Error adding to knowledge: {e}"
+                )
+                await __event_emitter__(
+                    {
+                        "type": "status",
+                        "data": {
+                            "description": "Error adding to Knowledge",
+                            "done": True,
+                        },
+                    }
+                )
+        else:
+            return await self.cancel(user, __event_emitter__)
+
+    async def cancel(
+        self, user, __event_emitter__: Optional[Callable[[Any], Awaitable[None]]] = None
+    ):
+        await __event_emitter__(
+            {
+                "type": "status",
+                "data": {
+                    "description": "Addition of knowledge cancelled",
+                    "done": True,
+                },
+            }
+        )
+        logger.info(
+            f"User - Name: {user.name}, ID: {user.id}: Addition of knowledge cancelled"
+        )
