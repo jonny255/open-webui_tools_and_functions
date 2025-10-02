@@ -53,19 +53,22 @@ THOUGHT_ENCLOSURE = """
 class Filter:
     class Valves(BaseModel):
         enable_autolearn: bool = Field(
-            default=True, description="Enable or disable real-time learning."
+            default=True,
+            description="Enable or disable real-time learning."
         )
         learning_mode: str = Field(
             default="dynamic",
             description="Learning mode: 'dynamic' (continual) or 'static'.",
         )
         store_knowledge: bool = Field(
-            default=True, description="Store learned knowledge for future use."
+            default=True,
+            description="Store learned knowledge for future use."
         )
         max_iterations: int = Field(
-            default=10, description="Max number of iterations for real learning."
+            default=10,
+            description="Max number of iterations for real learning."
         )
-        searxng_url: str = Field(default="http://searxng:8080")
+        searxng_url: str = Field(default="http://192.168.1.179:8080")
         enable_duckduckgo: bool = Field(default=True)
         duckduckgo_results: int = Field(default=5)
         enable_searxng: bool = Field(default=True)
@@ -81,7 +84,7 @@ class Filter:
 
         # NEW: path for plain‑text persistence
         self.knowledge_file_path = os.path.join(
-            os.path.dirname(__file__), "knowledge.txt"
+            os.path.dirname(__file__), "autotrainseknowledge.txt"
         )
         if not os.path.exists(self.knowledge_file_path):
             open(self.knowledge_file_path, "a", encoding="utf-8").close()
