@@ -1,0 +1,173 @@
+"""
+title: Directory and File Management Tool
+description: Provides functions to list directories, read/write files, delete files/folders, and copy files.
+author: GrimTM
+version: 1.1.0
+
+    TODO
+        [ ] Look into understanding and potentially improve this function.
+"""
+
+import os
+from shutil import copy2, rmtree
+from fastapi import FastAPI
+from pydantic import BaseModel
+from typing import Optional
+
+app = FastAPI()
+
+
+class Tools:
+    def list_directory(self, path: str = None) -> dict:
+        path = path or os.getcwd()
+        if not os.path.exists(path):
+            return {"error": f"Path not found: {path}"}
+        try:
+            entries = os.listdir(path)
+            folders = []
+            files = []
+            for entry in entries:
+                full_path = os.path.join(path, entry)
+                if os.path.isdir(full_path):
+                    folders.append(entry)
+                elif os.path.isfile(full_path):
+                    files.append(entry)
+            return {"path": path, "folders": folders, "files": files}
+        except Exception as e:
+            return {"error": str(e)}
+
+    def read_file(self, file_name: str, path: str = None) -> str:
+        full_path = os.path.join(path or os.getcwd(), file_name)
+        if not os.path.isfile(full_path):
+            return f"File not found: {full_path}"
+        try:
+            with open(full_path, "r", errors="ignore") as f:
+                return f.read()
+        except Exception as e:
+            return f"Error reading file: {str(e)}"
+
+    def write_file(self, file_name: str, content: str, path: str = None) -> dict:
+        full_path = os.path.join(path or os.getcwd(), file_name)
+        try:
+            with open(full_path, "w") as f:
+                f.write(content)
+            return {
+                "success": True,
+                "message": f"File '{file_name}' written successfully.",
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def delete_file(self, file_name: str, path: str = None) -> dict:
+        full_path = os.path.join(path or os.getcwd(), file_name)
+        if not os.path.isfile(full_path):
+            return {"error": f"File not found: {full_path}"}
+        try:
+            os.remove(full_path)
+            return {
+                "success": True,
+                "message": f"File '{file_name}' deleted successfully.",
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def copy_file(
+        self, src_file: str, dest_file: str, src_path: str = None, dest_path: str = None
+    ) -> dict:
+        full_src_path = os.path.join(src_path or os.getcwd(), src_file)
+        full_dest_path = os.path.join(dest_path or os.getcwd(), dest_file)
+        if not os.path.isfile(full_src_path):
+            return {"error": f"Source file not found: {full_src_path}"}
+        try:
+            copy2(full_src_path, full_dest_path)
+            return {
+                "success": True,
+                "message": f"File '{src_file}' copied to '{dest_file}' successfully.",
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def create_folder(self, folder_name: str, path: str = None) -> dict:
+        full_path = os.path.join(path or os.getcwd(), folder_name)
+        try:
+            os.makedirs(full_path)
+            return {
+                "success": True,
+                "message": f"Folder '{folder_name}' created successfully.",
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def delete_folder(self, folder_name: str, path: str = None) -> dict:
+        full_path = os.path.join(path or os.getcwd(), folder_name)
+        if not os.path.isdir(full_path):
+            return {"error": f"Folder not found: {full_path}"}
+        try:
+            rmtree(full_path)
+            return {
+                "success": True,
+                "message": f"Folder '{folder_name}' deleted successfully.",
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+
+tools = Tools()
+
+
+# Input models
+class FileRequest(BaseModel):
+    file_name: str
+    path: Optional[str] = None
+
+
+class FileWriteRequest(FileRequest):
+    content: str
+
+
+class CopyFileRequest(BaseModel):
+    src_file: str
+    dest_file: str
+    src_path: Optional[str] = None
+    dest_path: Optional[str] = None
+
+
+class FolderRequest(BaseModel):
+    folder_name: str
+    path: Optional[str] = None
+
+
+# Routes
+@app.get("/list_directory")
+def api_list_directory(path: Optional[str] = None):
+    return tools.list_directory(path)
+
+
+@app.get("/read_file")
+def api_read_file(file_name: str, path: Optional[str] = None):
+    return tools.read_file(file_name, path)
+
+
+@app.post("/write_file")
+def api_write_file(req: FileWriteRequest):
+    return tools.write_file(req.file_name, req.content, req.path)
+
+
+@app.post("/delete_file")
+def api_delete_file(req: FileRequest):
+    return tools.delete_file(req.file_name, req.path)
+
+
+@app.post("/copy_file")
+def api_copy_file(req: CopyFileRequest):
+    return tools.copy_file(req.src_file, req.dest_file, req.src_path, req.dest_path)
+
+
+@app.post("/create_folder")
+def api_create_folder(req: FolderRequest):
+    return tools.create_folder(req.folder_name, req.path)
+
+
+@app.post("/delete_folder")
+def api_delete_folder(req: FolderRequest):
+    return tools.delete_folder(req.folder_name, req.path)

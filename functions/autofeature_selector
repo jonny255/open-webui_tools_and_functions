@@ -1,0 +1,105 @@
+"""
+title: AutoFeature Selector
+description: A dynamic filter that analyzes user input to intelligently enable relevant features like web search, image generation, or code interpretation.
+author: open-webui
+author_url: https://github.com/open-webui
+funding_url: https://github.com/open-webui
+version: 0.1
+
+    TODO
+        [ ] Look into understanding and potentially improve this function.
+"""
+
+from fastapi import Request
+from pydantic import BaseModel, Field
+from typing import Optional, List
+import json
+
+from open_webui.utils.chat import generate_chat_completion
+from open_webui.utils.misc import get_last_user_message
+
+
+class User(BaseModel):
+    id: str
+    email: str
+    name: str
+    role: str
+
+
+class Filter:
+    class Valves(BaseModel):
+        priority: int = Field(
+            default=0, description="Priority level for the filter operations."
+        )
+        task_model_id: str = Field(
+            default="mistral",
+            description="ID of the model to use for tool selection.",
+        )
+        tool_list: List[str] = Field(
+            default=[
+                "web_search",
+                "improved_calculator_",
+                "code_interpreter",
+                "supreme_file_management",
+                "paperless",
+                "deepresearch",
+            ],
+            description="A list of tool names that are available or permitted for use in operations.",
+        )
+        pass
+
+    def __init__(self):
+        self.valves = self.Valves()
+        pass
+
+    async def inlet(self, body: dict, __user__: dict, __request__: Request) -> dict:
+        user_message = get_last_user_message(body.get("messages", []))
+        tool_prompt = """
+You are an assistant that selects the appropriate tools from the following list based on the user's input:
+{{TOOL_LIST}}
+
+Instructions: Analyze the user input and reply with only a JSON object in the form:
+{"selected_tools": ["tool_name1", "tool_name2", ...]}
+
+User input: {{USER_MESSAGE}}
+"""
+
+        tool_prompt = tool_prompt.replace("{{TOOL_LIST}}", str(self.valves.tool_list))
+        tool_prompt = tool_prompt.replace("{{USER_MESSAGE}}", user_message)
+
+        selected_tools = []
+        try:
+            res = await generate_chat_completion(
+                __request__,
+                {
+                    "model": self.valves.task_model_id,
+                    "messages": [{"role": "user", "content": tool_prompt}],
+                },
+                User(**__user__),
+            )
+            res = res["choices"][0]["message"]["content"]
+
+            try:
+                bracket_start = res.find("{")
+                bracket_end = res.rfind("}") + 1
+
+                if bracket_start == -1 or bracket_end == -1:
+                    raise Exception("No JSON object found in the response")
+
+                res = res[bracket_start:bracket_end]
+                res = json.loads(res)
+            except Exception as e:
+                print(e)
+                pass
+
+            selected_tools = res.get("selected_tools", [])
+        except Exception as e:
+            print(e)
+            pass
+
+        if selected_tools:
+            body.setdefault("features", {}).update(
+                {tool: True for tool in selected_tools}
+            )
+
+        return body

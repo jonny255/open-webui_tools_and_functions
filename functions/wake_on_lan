@@ -1,0 +1,84 @@
+"""
+title: Wake-on-Lan
+description: Pipe model to wake on lan your Ollama server before sending a query. Uses https://github.com/rix1337/WakeOnLAN-API
+author: Bastien Vidé
+version: 0.1.0
+
+    TODO
+        [ ] Look into understanding and function and how it works. GH repo is in this folder as well.
+"""
+
+from pydantic import BaseModel, Field
+from fastapi import Request
+from typing import Callable, Awaitable, Any, Optional, Literal
+
+from open_webui.models.users import Users
+from open_webui.utils.chat import generate_chat_completion
+from open_webui.utils.models import get_all_models
+
+import requests
+import asyncio
+
+
+class Pipe:
+    class Valves(BaseModel):
+        MODEL_ID: str = Field(
+            default="mistral:7b",
+            description="Model to redirect queries to.",
+        )
+        OLLAMA_URL: str = Field(
+            default="http://192.168.1.111:11434/",
+            description="URL to check to verify if your server and Ollama are running.",
+        )
+        WOL_URL: str = Field(
+            default="http://localhost:18080/wol/00:00:00:00:00:00",
+            description="URL to ping to wake up your server.",
+        )
+
+    def __init__(self):
+        self.valves = self.Valves()
+
+    def check_http_service(self, url):
+        try:
+            return requests.get(url, timeout=5).status_code == 200
+        except requests.exceptions.RequestException as e:
+            return False
+
+    async def pipe(
+        self,
+        body: dict,
+        __user__: dict,
+        __request__: Request,
+    ) -> str:
+        # Use the unified endpoint with the updated signature
+        user = Users.get_user_by_id(__user__["id"])
+        body["model"] = self.valves.MODEL_ID
+        ollama_url = self.valves.OLLAMA_URL
+        wol_url = self.valves.WOL_URL
+
+        # Check if not online
+        if not self.check_http_service(ollama_url):
+            # Send the wake on lan request to the server
+            requests.get(wol_url)
+            print("Sending WOL request")
+
+            # Wait for server to be available
+            while not self.check_http_service(ollama_url):
+                print("Proteus not responding")
+                pass
+
+            print("Proteus online")
+
+        available_models = [
+            model["id"]
+            for model in list(__request__.app.state.MODELS.values())
+            if model.get("owned_by") != "arena"
+        ]
+
+        if self.valves.MODEL_ID not in available_models:
+            await get_all_models(__request__)
+
+        try:
+            return await generate_chat_completion(__request__, body, user, True)
+        except Exception as e:
+            return f"Error: {e}"
