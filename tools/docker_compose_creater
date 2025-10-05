@@ -1,0 +1,19 @@
+"""
+title: Docker-compose.yml converter/creator
+description: Tool used to convert `docker run` commands into docker-compose.yml
+author: John Mirea
+funding_url: https://github.com/jonny255/open-webui_tools_and_functions
+version: 1.1.0
+license: MIT
+
+    TODO
+        [ ] Brainstorm on this concept; determine if tool is appropriate, to better to use as function/prompt.
+"""
+
+import os
+
+from dotenv import load_dotenv
+from pydantic import BaseModel, Field
+
+
+
