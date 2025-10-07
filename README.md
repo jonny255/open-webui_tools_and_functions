@@ -14,3 +14,9 @@ Modifications to existing tools and/or functions (mostly to tailor settings to m
 [ ] codemaster_reasoning_pipe
 [ ] crawlinganddeepanalysis
 [ ] deep_research_at_home
+
+
+
+## FIXME:
+
+[ ] "An error occurred while searching the web"; believe to be coming from OWUI's builtin Web Search feature
